@@ -70,7 +70,7 @@ AddEventHandler("KI:cc", function(name, requestId, data)
 		-- callback does not exist
 		print("^1[ERROR] ClientCallback \"" .. name .. "\" does not exist!")
 		
-		TriggerServerEvent("KI:ccDoesNotExist", requestName)
+		TriggerServerEvent("KI:ccDoesNotExist", requestName, name)
 	end
 end)
 
@@ -83,7 +83,7 @@ AddEventHandler("KI:scResponse", function(requestName, data)
 end)
 
 RegisterNetEvent("KI:scDoesNotExist")
-AddEventHandler("KI:scDoesNotExist", function(requestName)
+AddEventHandler("KI:scDoesNotExist", function(requestName, name)
 	if (callbackResponses[requestName] ~= nil) then
 		callbackResponses[requestName] = "ERROR"
 		

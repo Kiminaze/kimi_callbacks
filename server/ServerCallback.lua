@@ -59,18 +59,20 @@ end
 
 RegisterServerEvent("KI:sc")
 AddEventHandler("KI:sc", function(name, requestId, data)
+	local src = source
+
 	local requestName = name .. tostring(requestId)
 
 	if (callbacks[name] ~= nil) then
 		-- execute callback function and return its result
-		local result = { callbacks[name](source, table.unpack(data)) }
+		local result = { callbacks[name](src, table.unpack(data)) }
 		
-		TriggerClientEvent("KI:scResponse", source, requestName, result)
+		TriggerClientEvent("KI:scResponse", src, requestName, result)
 	else
 		-- callback does not exist
 		print("^1[ERROR] ServerCallback \"" .. name .. "\" does not exist!")
 		
-		TriggerClientEvent("KI:scDoesNotExist", source, requestName)
+		TriggerClientEvent("KI:scDoesNotExist", src, requestName, name)
 	end
 end)
 
@@ -83,7 +85,7 @@ AddEventHandler("KI:ccResponse", function(requestName, data)
 end)
 
 RegisterServerEvent("KI:ccDoesNotExist")
-AddEventHandler("KI:ccDoesNotExist", function(requestName)
+AddEventHandler("KI:ccDoesNotExist", function(requestName, name)
 	if (callbackResponses[requestName] ~= nil) then
 		callbackResponses[requestName] = "ERROR"
 		
