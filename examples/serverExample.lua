@@ -31,7 +31,7 @@ local data1, data2, data3 = exports["kimi_callbacks"]:TriggerWithTimeout("CALLBA
 
 -- EXAMPLES
 
--- Return a vehicle position to client.
+-- Return money to client.
 exports["kimi_callbacks"]:Register("getMoney", function(source, moneyType)
 	-- get money from player with source
 	local cash, bank = GetMoneyFromPlayer(source)
