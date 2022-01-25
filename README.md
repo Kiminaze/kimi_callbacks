@@ -48,3 +48,9 @@ Script that both use this feature to get values from the server.
 - Extract the folder into your resources folder.
 - Make sure the folder name of the script is **`kimi_callbacks`**
 - Go into your server.cfg and put the line **`ensure kimi_callbacks`** as high up as possible.
+
+### Patchnotes
+
+Update v1.1:
+- Added additional error checks to show user friendly error messages.
+- Exports now defined directly inside the script instead of the fxmanifest file.
