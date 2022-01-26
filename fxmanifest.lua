@@ -3,7 +3,7 @@ games { 'gta5' }
 
 author 'Philipp Decker'
 description 'Easy to use server and client callbacks!'
-version '1.1'
+version '1.1.1'
 
 server_scripts {
 	'server/ServerCallback.lua'

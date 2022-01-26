@@ -6,8 +6,6 @@ local callbacks = {}
 -- register new callback
 function Register(name, cb)
 	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
-	assert(callbacks[name] == nil, "Callback with name \"" .. name .. "\" already exists!")
-	assert(callback ~= nil and type(callback) == "function", "Parameter \"callback\" must be a function!")
 
 	callbacks[name] = cb
 end

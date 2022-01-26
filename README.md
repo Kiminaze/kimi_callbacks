@@ -54,3 +54,6 @@ Script that both use this feature to get values from the server.
 Update v1.1:
 - Added additional error checks to show user friendly error messages.
 - Exports now defined directly inside the script instead of the fxmanifest file.
+
+Update v1.1.1:
+- Fixed error when registering a callback.
