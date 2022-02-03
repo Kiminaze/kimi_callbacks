@@ -57,3 +57,6 @@ Update v1.1:
 
 Update v1.1.1:
 - Fixed error when registering a callback.
+
+Update v1.1.2:
+- Added an additional error check.
