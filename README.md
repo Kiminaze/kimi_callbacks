@@ -1,7 +1,7 @@
 
 ## Support
 
-If you require any form of support after buying this resource, the right place to ask is our 
+If you require any form of support after acquiring this resource, the right place to ask is our 
 Discord Server: https://discord.kiminaze.de
 
 Make sure to react to the initial message with the tick and your language to get access to all 
@@ -9,9 +9,6 @@ the different channels.
 
 Please do not contact anyone directly unless you have a really specific request that does not have 
 a place in the server.
-
-Updates for the script can be downloaded from the same link that was provided to you when you first 
-purchased this script.
 
 
 ## What exactly is "kimi_callbacks" and what can you do with it?
