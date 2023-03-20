@@ -123,9 +123,13 @@ RegisterNetEvent("KI:cc", function(name, requestId, data)
 	local returnData = table.pack(pcall(callbacks[name], table.unpack(data)))
 	if (not returnData[1]) then
 		-- error in callback function
-		LogError("ClientCallback \"%s\" ran into the following error:^0\n%s", name, result)
+		if (returnData[2] == nil) then
+			LogError("ClientCallback \"%s\" ran into an error!", name)
+		else
+			LogError("ClientCallback \"%s\" ran into the following error:\n%s", name, returnData[2])
+		end
 
-		TriggerServerEvent("KI:ccError", requestName, name)
+		TriggerServerEvent("KI:ccError", requestName, name, returnData[2])
 
 		return
 	end
@@ -158,12 +162,16 @@ RegisterNetEvent("KI:scDoesNotExist", function(requestName, name)
 end)
 
 -- error in ServerCallback
-RegisterNetEvent("KI:scError", function(requestName, name)
+RegisterNetEvent("KI:scError", function(requestName, name, errorMessage)
 	if (callbackResponses[requestName] == nil) then return end
 
 	callbackResponses[requestName] = "ERROR"
 
-	LogError("ServerCallback \"%s\" ran into an error! Check the server console for errors!", name)
+	if (errorMessage == nil) then
+		LogError("ServerCallback \"%s\" ran into an error! Check the server console for errors!", name)
+	else
+		LogError("ServerCallback \"%s\" ran into the following error:\n%s", name, errorMessage)
+	end
 end)
 
 

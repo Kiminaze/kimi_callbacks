@@ -55,6 +55,10 @@ didn't really exactly suit my needs.
 
 ## Patchnotes
 
+### Update v1.3.0
+- Added error message display directly into the callbacks. Certain newer server versions should now 
+  see the messages in both client and server console!
+
 ### Update v1.2.0
 - Added asynchronous callbacks.
 - Added additional error checking.

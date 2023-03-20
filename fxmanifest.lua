@@ -3,7 +3,7 @@ games { "gta5" }
 
 author "Philipp Decker"
 description "Easy to use server and client callbacks!"
-version "1.2.0"
+version "1.3.0"
 
 lua54 "yes"
 
