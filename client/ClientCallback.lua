@@ -1,60 +1,103 @@
+
+local SC_TIMEOUT <const> = [[
+ServerCallback \"%s\" timed out after %sms!^0
+    Potential solutions:
+    - There was an error on server side. Please check the server console!
+    - Player ping was higher than the specified timeout.
+]]
+local SC_DOES_NOT_EXIST <const> = [[
+ServerCallback \"%s\" does not exist!^0
+    Potential solutions:
+    - \"kimi_callbacks\" needs to be started before the script that is using this export!
+    - Make sure that there is no typo in the Register or Trigger function!
+]]
+local SC_ERROR <const> = "ServerCallback \"%s\" ran into an error! Check the server console for errors!"
+local SC_ERROR_SPECIFIED <const> = "ServerCallback \"%s\" ran into the following error:\n%s"
+
+local CC_DOES_NOT_EXIST <const> = [[
+ClientCallback \"%s\" does not exist!^0
+    Potential solutions:
+    - \"kimi_callbacks\" needs to be started before the script that is using this export!
+    - Make sure that there is no typo in the Register or Trigger function!
+]]
+local CC_ERROR <const> = "ClientCallback \"%s\" ran into an error!"
+local CC_ERROR_SPECIFIED <const> = "ClientCallback \"%s\" ran into the following error:\n%s"
+
+local MIN_INT <const> = math.mininteger
+local MAX_INT <const> = math.maxinteger
+
 local callbackResponses = {}
-local currentRequestId = 0
+local currentRequestId = MIN_INT
 
 local callbacks = {}
 
+
+
+-- log error to console
+local ERROR_PREFIX <const> = "^1[ERROR] %s^0"
+local function LogError(text, ...)
+	print(ERROR_PREFIX:format(text):format(...))
+end
+
+-- check export parameter
+local PARAM_ERROR <const> = "Parameter \"%s\" must be a %s!"
+local function CheckParameter(paramName, paramType, paramValue)
+	if (paramType == "function") then
+		assert(paramValue ~= nil and type(paramValue) == "table" and getmetatable(paramValue) ~= nil, PARAM_ERROR:format(paramName, paramType))
+	else
+		assert(paramValue ~= nil and type(paramValue) == paramType, PARAM_ERROR:format(paramName, paramType))
+	end
+end
+
+
+
 -- register new callback
-function Register(name, callback)
-	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
-	assert(callback ~= nil and type(callback) == "table" and getmetatable(callback) ~= nil, "Parameter \"callback\" must be a function!")
+local function Register(name, callback)
+	CheckParameter("name", "string", name)
+	CheckParameter("callback", "function", callback)
 
 	callbacks[name] = callback
 end
+exports("Register", Register)
 
--- trigger callback with default timeout (5000ms)
-function Trigger(name, ...)
-	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
+-- remove a callback
+local function Remove(name)
+	CheckParameter("name", "string", name)
 
-	return TriggerWithTimeout(name, 5000, ...)
+	callbacks[name] = nil
 end
+exports("Remove", Remove)
+
+
 
 -- trigger callback with custom timeout
-function TriggerWithTimeout(name, timeout, ...)
-	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
-	assert(timeout ~= nil and type(timeout) == "number", "Parameter \"timeout\" must be a number!")
+local function TriggerWithTimeout(name, timeout, ...)
+	CheckParameter("name", "string", name)
+	CheckParameter("timeout", "number", timeout)
 
-	-- get id for current request
+	-- get id for current request and advance for next
 	local requestId = currentRequestId
-
-	-- advance id for next request
 	currentRequestId = currentRequestId + 1
-	if (currentRequestId >= 65536) then
-		currentRequestId = 0
+	if (currentRequestId >= MAX_INT) then
+		currentRequestId = MIN_INT
 	end
 
-	-- generate unique request name
-	local requestName = name .. tostring(requestId)
-
 	-- send data to server
-	TriggerServerEvent("KI:sc", name, requestId, { ... })
+	TriggerServerEvent("KC:sc", name, requestId, { ... })
 
 	-- await cb response and handle timeout
+	local requestName = name .. tostring(requestId)
+
 	callbackResponses[requestName] = true
 
-	local timer = GetGameTimer()
+	local endTime = GetGameTimer + timeout
 	while (callbackResponses[requestName] == true) do
-		Citizen.Wait(0)
+		Wait(0)
 
-		if (GetGameTimer() > timer + timeout) then
+		if (GetGameTimer() > endTime) then
 			callbackResponses[requestName] = "ERROR"
 
-			LogError(
-				"ServerCallback \"%s\" timed out after %sms!^0\n" .. 
-				"    Potential solutions:\n" .. 
-				"    - There was an error on server side. Please check the server console!\n" .. 
-				"    - Player ping was higher than the specified timeout.",
-				name, timeout
-			)
+			LogError(SC_TIMEOUT, name, timeout)
 
 			break
 		end
@@ -68,117 +111,92 @@ function TriggerWithTimeout(name, timeout, ...)
 	callbackResponses[requestName] = nil
 	return table.unpack(data)
 end
+exports("TriggerWithTimeout", TriggerWithTimeout)
 
--- trigger callback asynchronously and call a function with default timeout (5000ms)
-function TriggerAsync(name, callbackFunction, ...)
-	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
-	assert(callbackFunction ~= nil and type(callbackFunction) == "table" and getmetatable(callbackFunction) ~= nil, "Parameter \"callbackFunction\" must be a function!")
-
-	local args = {...}
-	Citizen.CreateThread(function()
-		callbackFunction(Trigger(name, args))
-	end)
+-- trigger callback with default timeout (5000ms)
+local function Trigger(name, ...)
+	return TriggerWithTimeout(name, 5000, ...)
 end
+exports("Trigger", Trigger)
+
+
 
 -- trigger callback asynchronously and call a function with custom timeout
-function TriggerWithTimeoutAsync(name, timeout, callbackFunction, ...)
-	assert(name ~= nil and type(name) == "string", "Parameter \"name\" must be a string!")
-	assert(timeout ~= nil and type(timeout) == "number", "Parameter \"timeout\" must be a number!")
-	assert(callbackFunction ~= nil and type(callbackFunction) == "table" and getmetatable(callbackFunction) ~= nil, "Parameter \"callbackFunction\" must be a function!")
+local function TriggerWithTimeoutAsync(name, timeout, callback, ...)
+	CheckParameter("callback", "function", callback)
 
-	local args = {...}
-	Citizen.CreateThread(function()
-		callbackFunction(TriggerWithTimeout(name, timeout, args))
+	local args = { ... }
+	CreateThread(function()
+		callback(TriggerWithTimeout(name, timeout, args))
 	end)
 end
+exports("TriggerWithTimeoutAsync", TriggerWithTimeoutAsync)
 
+-- trigger callback asynchronously and call a function with default timeout (5000ms)
+local function TriggerAsync(name, callback, ...)
+	CheckParameter("callback", "function", callback)
 
-
--- log error to console
-function LogError(text, ...)
-	print(("^1[ERROR] %s^0"):format(text):format(...))
+	local args = { ... }
+	CreateThread(function()
+		callback(Trigger(name, args))
+	end)
 end
+exports("TriggerAsync", TriggerAsync)
 
 
 
 -- execute ClientCallback
-RegisterNetEvent("KI:cc", function(name, requestId, data)
-	local requestName = name .. tostring(requestId)
-
+RegisterNetEvent("KC:cc", function(name, requestId, data)
 	if (callbacks[name] == nil) then
-		LogError(
-			"ClientCallback \"%s\" does not exist!^0\n" .. 
-			"    Potential solutions:\n" .. 
-			"    - \"kimi_callbacks\" needs to be started before the script that is using this export!\n" .. 
-			"    - Make sure that there is no typo in the Register or Trigger function!",
-			name
-		)
+		LogError(CC_DOES_NOT_EXIST, name)
 
-		TriggerServerEvent("KI:ccDoesNotExist", requestName, name)
+		TriggerServerEvent("KC:ccDoesNotExist", name, requestId)
 
 		return
 	end
 
-	-- execute callback function and return its result
+	-- execute callback
 	local returnData = table.pack(pcall(callbacks[name], table.unpack(data)))
 	if (not returnData[1]) then
 		-- error in callback function
-		if (returnData[2] == nil) then
-			LogError("ClientCallback \"%s\" ran into an error!", name)
-		else
-			LogError("ClientCallback \"%s\" ran into the following error:\n%s", name, returnData[2])
-		end
+		LogError(returnData[2] and CC_ERROR_SPECIFIED OR CC_ERROR, name, returnData[2])
 
-		TriggerServerEvent("KI:ccError", requestName, name, returnData[2])
+		TriggerServerEvent("KC:ccError", name, requestId, returnData[2])
 
 		return
 	end
 
 	table.remove(returnData, 1)
 
-	TriggerServerEvent("KI:ccResponse", requestName, returnData)
+	-- send result to server
+	TriggerServerEvent("KC:ccResponse", name .. tostring(requestId), returnData)
 end)
 
 -- receive data from ServerCallback
-RegisterNetEvent("KI:scResponse", function(requestName, data)
+RegisterNetEvent("KC:scResponse", function(requestName, data)
 	if (callbackResponses[requestName] == nil) then return end
 
 	callbackResponses[requestName] = data
 end)
 
 -- ServerCallback does not exist
-RegisterNetEvent("KI:scDoesNotExist", function(requestName, name)
+RegisterNetEvent("KC:scDoesNotExist", function(name, requestId)
+	local requestName = name .. tostring(requestId)
+
 	if (callbackResponses[requestName] == nil) then return end
 
 	callbackResponses[requestName] = "ERROR"
 
-	LogError(
-		"ServerCallback \"%s\" does not exist!^0\n" .. 
-		"    Potential solutions:\n" .. 
-		"    - \"kimi_callbacks\" needs to be started before the script that is using this export!\n" .. 
-		"    - Make sure that there is no typo in the Register or Trigger function!",
-		name
-	)
+	LogError(SC_DOES_NOT_EXIST, name)
 end)
 
 -- error in ServerCallback
-RegisterNetEvent("KI:scError", function(requestName, name, errorMessage)
+RegisterNetEvent("KC:scError", function(name, requestId, errorMessage)
+	local requestName = name .. tostring(requestId)
+
 	if (callbackResponses[requestName] == nil) then return end
 
 	callbackResponses[requestName] = "ERROR"
 
-	if (errorMessage == nil) then
-		LogError("ServerCallback \"%s\" ran into an error! Check the server console for errors!", name)
-	else
-		LogError("ServerCallback \"%s\" ran into the following error:\n%s", name, errorMessage)
-	end
+	LogError(errorMessage and SC_ERROR_SPECIFIED or SC_ERROR, name, errorMessage)
 end)
-
-
-
--- declare exports
-exports("Register", Register)
-exports("Trigger", Trigger)
-exports("TriggerWithTimeout", TriggerWithTimeout)
-exports("TriggerAsync", TriggerAsync)
-exports("TriggerWithTimeoutAsync", TriggerWithTimeoutAsync)
