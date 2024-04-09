@@ -159,7 +159,7 @@ RegisterNetEvent("KC:cc", function(name, requestId, data)
 	local returnData = table.pack(pcall(callbacks[name], table.unpack(data)))
 	if (not returnData[1]) then
 		-- error in callback function
-		LogError(returnData[2] and CC_ERROR_SPECIFIED OR CC_ERROR, name, returnData[2])
+		LogError(returnData[2] and CC_ERROR_SPECIFIED or CC_ERROR, name, returnData[2])
 
 		TriggerServerEvent("KC:ccError", name, requestId, returnData[2])
 
