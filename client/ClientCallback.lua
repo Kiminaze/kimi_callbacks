@@ -90,7 +90,7 @@ local function TriggerWithTimeout(name, timeout, ...)
 
 	callbackResponses[requestName] = true
 
-	local endTime = GetGameTimer + timeout
+	local endTime = GetGameTimer() + timeout
 	while (callbackResponses[requestName] == true) do
 		Wait(0)
 
