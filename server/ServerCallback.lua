@@ -41,7 +41,7 @@ end
 
 -- check export parameter
 local PARAM_ERROR <const> = "Parameter \"%s\" must be a %s!"
-local function CheckParameter(paramName, paramType, paramValue)
+local function CheckParameter(paramValue, paramName, paramType)
 	if (paramType == "function") then
 		assert(paramValue ~= nil and type(paramValue) == "table" and getmetatable(paramValue) ~= nil, PARAM_ERROR:format(paramName, paramType))
 	else
@@ -53,16 +53,16 @@ end
 
 -- register new callback
 local function Register(name, callback)
-	CheckParameter("name", "string", name)
-	CheckParameter("callback", "function", callback)
+	CheckParameter(name, "name", "string")
+	CheckParameter(callback, "callback", "function")
 
-	callbacks[name] =  callback
+	callbacks[name] = callback
 end
 exports("Register", Register)
 
 -- remove a callback
 local function Remove(name)
-	CheckParameter("name", "string", name)
+	CheckParameter(name, "name", "string")
 
 	callbacks[name] = nil
 end
@@ -72,9 +72,9 @@ exports("Remove", Remove)
 
 -- trigger callback with custom timeout
 local function TriggerWithTimeout(name, playerId, timeout, ...)
-	CheckParameter("name", "string", name)
-	CheckParameter("playerId", "number", playerId)
-	CheckParameter("timeout", "number", timeout)
+	CheckParameter(name, "name", "string")
+	CheckParameter(playerId, "playerId", "number")
+	CheckParameter(timeout, "timeout", "number")
 
 	-- get id for current request and advance for next
 	local requestId = currentRequestId
@@ -124,7 +124,7 @@ exports("Trigger", Trigger)
 
 -- trigger callback asynchronously and call a function with custom timeout
 local function TriggerWithTimeoutAsync(name, playerId, timeout, callback, ...)
-	CheckParameter("callback", "function", callback)
+	CheckParameter(callback, "callback", "function")
 
 	local args = { ... }
 	CreateThread(function()
@@ -135,7 +135,7 @@ exports("TriggerWithTimeoutAsync", TriggerWithTimeoutAsync)
 
 -- trigger callback asynchronously and call a function with default timeout (5000ms)
 local function TriggerAsync(name, playerId, callback, ...)
-	CheckParameter("callback", "function", callback)
+	CheckParameter(callback, "callback", "function")
 
 	local args = { ... }
 	CreateThread(function()
