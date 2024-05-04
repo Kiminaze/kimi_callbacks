@@ -26,6 +26,10 @@ local CC_ERROR_SPECIFIED <const> = "ClientCallback \"%s\" ran into the following
 local MIN_INT <const> = math.mininteger
 local MAX_INT <const> = math.maxinteger
 
+local table_pack = table.pack
+local table_unpack = table.unpack
+local table_remove = table.remove
+
 local callbackResponses = {}
 local currentRequestId = MIN_INT
 
@@ -109,7 +113,7 @@ local function TriggerWithTimeout(name, timeout, ...)
 	-- return unpacked data
 	local data = callbackResponses[requestName]
 	callbackResponses[requestName] = nil
-	return table.unpack(data)
+	return table_unpack(data)
 end
 exports("TriggerWithTimeout", TriggerWithTimeout)
 
@@ -156,7 +160,7 @@ RegisterNetEvent("KC:cc", function(name, requestId, data)
 	end
 
 	-- execute callback
-	local returnData = table.pack(pcall(callbacks[name], table.unpack(data)))
+	local returnData = table_pack(pcall(callbacks[name], table_unpack(data)))
 	if (not returnData[1]) then
 		-- error in callback function
 		LogError(returnData[2] and CC_ERROR_SPECIFIED or CC_ERROR, name, returnData[2])
@@ -166,7 +170,7 @@ RegisterNetEvent("KC:cc", function(name, requestId, data)
 		return
 	end
 
-	table.remove(returnData, 1)
+	table_remove(returnData, 1)
 
 	-- send result to server
 	TriggerServerEvent("KC:ccResponse", name .. tostring(requestId), returnData)
