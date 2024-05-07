@@ -1,7 +1,7 @@
 
 Custom license
 
-Copyright (c) since 2024 by Philipp Decker
+Copyright (c) since 2024 by Philipp Decker  
 Contact for business enquiries: kiminaze@yahoo.de
 
 "kimi_callbacks" (the "software") is a resource for the "FiveM" modification for the game "Grand 
