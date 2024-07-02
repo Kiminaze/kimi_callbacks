@@ -6,7 +6,7 @@ callbacks in an easy manner. This script does nothing by itself and needs to be 
 from other resources.
 
 
-## ℹ️ Features
+## 📋 Features
 
 - Clients can request data from the server.
 - Server can request data from a client.
