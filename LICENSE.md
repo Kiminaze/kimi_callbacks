@@ -1,5 +1,5 @@
 
-Custom license
+# License
 
 Copyright (c) since 2024 by Philipp Decker  
 Contact for business enquiries: kiminaze@yahoo.de
@@ -18,7 +18,9 @@ all of its parts.
 
 The user is not allowed to publish and/or distribute the software, copies of the software, parts of 
 the software and/or modifications of the software apart from forking the official repository on 
-GitHub.
+GitHub. However - for the software to function properly within the environment - distribution of 
+the necessary client side files via the FiveM server is permitted, provided these files have been 
+legally acquired.
 
 By using this software the user is accepting this license and by updating the software any 
 potential changes are accepted as well.
@@ -49,7 +51,7 @@ All patch notes are located at https://github.com/Kiminaze/version_history.
 Support for the software is provided in English and German on the official Discord server located 
 at https://discord.kiminaze.de, subject to the discretion of the copyright holder.
 
-Support is provided for, but not guaranteed for:
+Support is provided - but not guaranteed - for:
 - Installation of the software
 - Configuration of the software
 - Problems revolving directly around the software (errors, bugs, glitches)
@@ -73,6 +75,15 @@ and accessibility of the code.
 
 If the software has been obtained from a non-legal source, the copyright holder is no longer liable 
 for any damages from using the software.
+
+
+## Supremacy of Platform License Agreement
+
+This License Agreement is subordinate to and does not replace or override the original Creator 
+Platform License Agreement ("PLA") set in place by Cfx (https://fivem.net/terms). In the event of 
+any conflict between this License Agreement and the PLA, the terms of the PLA shall prevail. All 
+users must comply with the terms and conditions of the PLA in addition to the terms set forth in 
+this License Agreement.
 
 
 ## Further information
